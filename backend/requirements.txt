@@ -16,6 +16,7 @@ python-multipart>=0.0.9
 # ── Database (SQLite free dev, swap URL for Postgres prod) ────────────────
 sqlalchemy>=2.0.0
 aiosqlite>=0.20.0          # SQLite async driver — free, no server needed
+asyncpg>=0.29.0            # Postgres async driver for Render/Supabase
 
 # ── Pydantic & Settings ────────────────────────────────────────────────────
 pydantic>=2.7.0
