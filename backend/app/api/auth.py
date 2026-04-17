@@ -83,19 +83,27 @@ async def youtube_initiate(user_id: str):
 @router.get("/youtube/callback")
 async def youtube_callback(code: str, state: str, db: AsyncSession = Depends(get_db)):
     user_id = state
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.post(
-            "https://oauth2.googleapis.com/token",
-            data={
-                "code": code,
-                "client_id": settings.GOOGLE_CLIENT_ID,
-                "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                "redirect_uri": settings.GOOGLE_REDIRECT_URI,
-                "grant_type": "authorization_code",
-            },
-        )
-        resp.raise_for_status()
-        data = resp.json()
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "https://oauth2.googleapis.com/token",
+                data={
+                    "code": code,
+                    "client_id": settings.GOOGLE_CLIENT_ID,
+                    "client_secret": settings.GOOGLE_CLIENT_SECRET,
+                    "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+                    "grant_type": "authorization_code",
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+    except httpx.HTTPStatusError as e:
+        body = e.response.text if e.response is not None else str(e)
+        logger.error(f"YouTube token exchange failed for user={user_id}: {body}")
+        raise HTTPException(status_code=502, detail=f"YouTube token exchange failed: {body}")
+    except Exception as e:
+        logger.exception(f"YouTube callback failed for user={user_id}: {e}")
+        raise HTTPException(status_code=500, detail="YouTube callback failed")
 
     await token_service.store_token(
         db, user_id, "youtube",
@@ -126,19 +134,27 @@ async def linkedin_initiate(user_id: str):
 @router.get("/linkedin/callback")
 async def linkedin_callback(code: str, state: str, db: AsyncSession = Depends(get_db)):
     user_id = state
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.post(
-            "https://www.linkedin.com/oauth/v2/accessToken",
-            data={
-                "grant_type": "authorization_code",
-                "code": code,
-                "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
-                "client_id": settings.LINKEDIN_CLIENT_ID,
-                "client_secret": settings.LINKEDIN_CLIENT_SECRET,
-            },
-        )
-        resp.raise_for_status()
-        data = resp.json()
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "https://www.linkedin.com/oauth/v2/accessToken",
+                data={
+                    "grant_type": "authorization_code",
+                    "code": code,
+                    "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
+                    "client_id": settings.LINKEDIN_CLIENT_ID,
+                    "client_secret": settings.LINKEDIN_CLIENT_SECRET,
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+    except httpx.HTTPStatusError as e:
+        body = e.response.text if e.response is not None else str(e)
+        logger.error(f"LinkedIn token exchange failed for user={user_id}: {body}")
+        raise HTTPException(status_code=502, detail=f"LinkedIn token exchange failed: {body}")
+    except Exception as e:
+        logger.exception(f"LinkedIn callback failed for user={user_id}: {e}")
+        raise HTTPException(status_code=500, detail="LinkedIn callback failed")
 
     await token_service.store_token(
         db, user_id, "linkedin",
