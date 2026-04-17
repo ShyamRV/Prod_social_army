@@ -1,0 +1,40 @@
+# AI Social Media Army — All Requirements (Free Dev Stack)
+# Install: pip install -r requirements.txt
+
+# ── Fetch.ai Agents ────────────────────────────────────────────────────────────
+uagents>=0.23.6
+uagents-core>=0.4.0
+
+# ── ASI:ONE LLM ───────────────────────────────────────────────────────────────
+openai>=1.30.0
+
+# ── FastAPI Backend ────────────────────────────────────────────────────────────
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart
+
+# ── Database (SQLite for dev, swap URL for Postgres in prod) ──────────────────
+sqlalchemy>=2.0.0
+aiosqlite                  # SQLite async driver (FREE, no server needed)
+# asyncpg                  # Uncomment for Postgres/Supabase in production
+
+# ── Pydantic & Config ─────────────────────────────────────────────────────────
+pydantic>=2.7.0
+pydantic-settings>=2.0.0
+
+# ── HTTP Client ───────────────────────────────────────────────────────────────
+httpx>=0.27.0
+
+# ── YouTube Upload ────────────────────────────────────────────────────────────
+google-auth>=2.29.0
+google-auth-httplib2
+google-api-python-client>=2.130.0
+
+# ── Thumbnail Generation (optional, graceful fallback) ───────────────────────
+pillow>=10.0.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv
+
+# ── Crypto (secure token storage) ─────────────────────────────────────────────
+cryptography>=42.0.0

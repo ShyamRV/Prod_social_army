@@ -1,0 +1,74 @@
+{
+    "session:650d44420f355ece7650f5cde6cab9dd": {
+        "stage": "yt_auth",
+        "user_id": "650d44420f35",
+        "video_file_id": "SIM_VIDEO_ID",
+        "drive_video_url": "https://drive.google.com/file/d/SIM_VIDEO_ID/view?usp=sharing",
+        "drive_script_url": "https://drive.google.com/file/d/SIM_SCRIPT_ID/view?usp=sharing",
+        "script_text": "This is a DEV_MODE demo script for AI Social Media Army.\n\nTopic: How multi-agent pipelines automate social posting.\nCTA: Subscribe for more.",
+        "yt_auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=your-google-client-id.apps.googleusercontent.com&redirect_uri=https://your-domain.com/auth/youtube/callback&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload%20https://www.googleapis.com/auth/youtube%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&prompt=consent&state=agent1q060wqrc06l64f24vczhnkfavqlz75er02"
+    },
+    "session:4d603f83528b1ebc64f8266a8a8ba4c4": {
+        "stage": "yt_auth",
+        "user_id": "4d603f83528b",
+        "video_file_id": "SIM_VIDEO_ID",
+        "drive_video_url": "https://drive.google.com/file/d/SIM_VIDEO_ID/view?usp=sharing",
+        "drive_script_url": "https://drive.google.com/file/d/SIM_SCRIPT_ID/view?usp=sharing",
+        "script_text": "This is a DEV_MODE demo script for AI Social Media Army.\n\nTopic: How multi-agent pipelines automate social posting.\nCTA: Subscribe for more.",
+        "yt_auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=your-google-client-id.apps.googleusercontent.com&redirect_uri=https://your-domain.com/auth/youtube/callback&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload%20https://www.googleapis.com/auth/youtube%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&prompt=consent&state=agent1qd8dpys7kypl6tqxgmznje9tdw4nrhsf4p"
+    },
+    "session:b97e48d584ddf9230f63a7944b2c92fb": {
+        "stage": "running",
+        "user_id": "b97e48d584dd",
+        "video_file_id": "SIM_VIDEO_ID",
+        "drive_video_url": "https://drive.google.com/file/d/SIM_VIDEO_ID/view?usp=sharing",
+        "drive_script_url": "https://drive.google.com/file/d/SIM_SCRIPT_ID/view?usp=sharing",
+        "script_text": "This is a DEV_MODE demo script for AI Social Media Army.\n\nTopic: How multi-agent pipelines automate social posting.\nCTA: Subscribe for more.",
+        "yt_auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=your-google-client-id.apps.googleusercontent.com&redirect_uri=https://your-domain.com/auth/youtube/callback&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload%20https://www.googleapis.com/auth/youtube%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&prompt=consent&state=agent1qguxxrhv973jw25zw2sqq2r0zqpyuzeedr",
+        "yt_token": "mock-youtube-access-token",
+        "yt_refresh": "mock-youtube-refresh-token",
+        "li_auth_url": "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=your-linkedin-client-id&redirect_uri=https://your-domain.com/auth/linkedin/callback&scope=r_liteprofile%20r_emailaddress%20w_member_social&state=agent1qguxxrhv973jw25zw2sqq2r0zqpyuzeedr",
+        "li_token": "mock-linkedin-access-token",
+        "job_id": "602fd5be-9237-44c7-b8e3-7e1d7e39b2a0"
+    },
+    "session:7161ddc39e63e58c01c1aa1e64ed92d9": {
+        "stage": "done",
+        "user_id": "7161ddc39e63",
+        "video_file_id": "SIM_VIDEO_ID",
+        "drive_video_url": "https://drive.google.com/file/d/SIM_VIDEO_ID/view?usp=sharing",
+        "drive_script_url": "https://drive.google.com/file/d/SIM_SCRIPT_ID/view?usp=sharing",
+        "script_text": "This is a DEV_MODE demo script for AI Social Media Army.\n\nTopic: How multi-agent pipelines automate social posting.\nCTA: Subscribe for more.",
+        "yt_auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=your-google-client-id.apps.googleusercontent.com&redirect_uri=https://your-domain.com/auth/youtube/callback&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload%20https://www.googleapis.com/auth/youtube%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&prompt=consent&state=agent1qd4kx02s2ekl6hfkke7f5fjmgn9ttsnft9",
+        "yt_token": "mock-youtube-access-token",
+        "yt_refresh": "mock-youtube-refresh-token",
+        "li_auth_url": "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=your-linkedin-client-id&redirect_uri=https://your-domain.com/auth/linkedin/callback&scope=r_liteprofile%20r_emailaddress%20w_member_social&state=agent1qd4kx02s2ekl6hfkke7f5fjmgn9ttsnft9",
+        "li_token": "mock-linkedin-access-token",
+        "job_id": "548affb9-a0c9-487e-bcea-553444343d93",
+        "result": {
+            "youtube": {
+                "video_id": "SIM_548affb9",
+                "video_url": "https://youtube.local/SIM_548affb9",
+                "title": "Multi-Agent Pipelines for Automated Social Posting",
+                "simulated": true
+            },
+            "linkedin": {
+                "post_id": "SIM_548affb9",
+                "post_url": "https://linkedin.local/SIM_548affb9",
+                "text": "🚀 Automate your social posting with AI multi-agent pipelines! See how autonomous agents handle content distribution effortlessly. 🎥 Watch: {youtube_url}",
+                "simulated": true
+            },
+            "content": {
+                "title": "Multi-Agent Pipelines for Automated Social Posting",
+                "description": "Discover how AI multi-agent pipelines revolutionize social media automation. See how autonomous agents handle posting, scheduling, and content distribution effortlessly. #AI #MultiAgent #SocialMediaAutomation #ArtificialIntelligence #TechAutomation",
+                "tags": [
+                    "multi agent systems",
+                    "AI automation",
+                    "social media posting",
+                    "autonomous agents",
+                    "pipeline automation"
+                ],
+                "linkedin_caption": "🚀 Automate your social posting with AI multi-agent pipelines! See how autonomous agents handle content distribution effortlessly. 🎥 Watch: {youtube_url}"
+            }
+        }
+    }
+}

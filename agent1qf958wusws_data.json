@@ -1,0 +1,42 @@
+{
+    "session:7161ddc39e63e58c01c1aa1e64ed92d9": {
+        "stage": "ready",
+        "user_id": "7161ddc39e63",
+        "video_file_id": "SIM_VIDEO_ID",
+        "drive_video_url": "https://drive.google.com/file/d/SIM_VIDEO_ID/view?usp=sharing",
+        "drive_script_url": "https://drive.google.com/file/d/SIM_SCRIPT_ID/view?usp=sharing",
+        "script_text": "This is a DEV_MODE demo script for AI Social Media Army.\n\nTopic: How multi-agent pipelines automate social posting.\nCTA: Subscribe for more.",
+        "yt_auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=your-google-client-id.apps.googleusercontent.com&redirect_uri=https://your-domain.com/auth/youtube/callback&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload%20https://www.googleapis.com/auth/youtube%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&prompt=consent&state=agent1qd4kx02s2ekl6hfkke7f5fjmgn9ttsnft9",
+        "yt_token": "mock-youtube-access-token",
+        "yt_refresh": "mock-youtube-refresh-token",
+        "li_auth_url": "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=your-linkedin-client-id&redirect_uri=https://your-domain.com/auth/linkedin/callback&scope=r_liteprofile%20r_emailaddress%20w_member_social&state=agent1qd4kx02s2ekl6hfkke7f5fjmgn9ttsnft9",
+        "li_token": "mock-linkedin-access-token",
+        "job_id": "1a94306b-10f8-4142-8a8a-25026a51087d",
+        "result": {
+            "youtube": {
+                "video_id": "SIM_1a94306b",
+                "video_url": "https://youtube.local/SIM_1a94306b",
+                "title": "Multi-Agent Pipelines: Automate Social Posting with AI",
+                "simulated": true
+            },
+            "linkedin": {
+                "post_id": "SIM_1a94306b",
+                "post_url": "https://linkedin.local/SIM_1a94306b",
+                "text": "Say goodbye to manual social posting! 🚀 Learn how AI multi-agent pipelines automate your workflow and scale content effortlessly. Watch the full demo: {youtube_url} #AI #Automation #SocialMedia",
+                "simulated": true
+            },
+            "content": {
+                "title": "Multi-Agent Pipelines: Automate Social Posting with AI",
+                "description": "Discover how AI multi-agent pipelines revolutionize social media posting. Learn to automate your workflow, save time, and scale your content strategy. Watch the full step-by-step demo! #AI #Automation #SocialMedia #ContentMarketing",
+                "tags": [
+                    "AI automation",
+                    "multi-agent systems",
+                    "social media automation",
+                    "AI Social Media Army",
+                    "content marketing"
+                ],
+                "linkedin_caption": "Say goodbye to manual social posting! 🚀 Learn how AI multi-agent pipelines automate your workflow and scale content effortlessly. Watch the full demo: {youtube_url} #AI #Automation #SocialMedia"
+            }
+        }
+    }
+}

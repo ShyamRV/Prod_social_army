@@ -1,0 +1,126 @@
+# Local / staging: backend + Postgres + all uAgents (HTTP between containers).
+# Agentverse production: host each agent + backend on a public URL; set *_SUBMIT_URL and USE_MAILBOX=true.
+
+x-agent-network-env: &agent_network_env
+  USE_MAILBOX: "false"
+  GATE_SUBMIT_URL: http://gate:8001/submit
+  ORCHESTRATOR_SUBMIT_URL: http://orchestrator:8002/submit
+  CONTENT_SUBMIT_URL: http://content-agent:8003/submit
+  YOUTUBE_SUBMIT_URL: http://youtube-agent:8004/submit
+  LINKEDIN_SUBMIT_URL: http://linkedin-agent:8005/submit
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./config/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://army:army@postgres:5432/army
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  gate:
+    build:
+      context: .
+      dockerfile: agents/Dockerfile
+      args:
+        AGENT_MODULE: agents.gate.gate_agent
+    env_file:
+      - ./config/.env
+    environment:
+      <<: *agent_network_env
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "8001:8001"
+    depends_on:
+      - backend
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: agents/Dockerfile
+      args:
+        AGENT_MODULE: agents.orchestrator.orchestrator_agent
+    env_file:
+      - ./config/.env
+    environment:
+      <<: *agent_network_env
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "8002:8002"
+    depends_on:
+      - backend
+
+  content-agent:
+    build:
+      context: .
+      dockerfile: agents/Dockerfile
+      args:
+        AGENT_MODULE: agents.content.content_agent
+    env_file:
+      - ./config/.env
+    environment:
+      <<: *agent_network_env
+    ports:
+      - "8003:8003"
+    depends_on:
+      - backend
+
+  youtube-agent:
+    build:
+      context: .
+      dockerfile: agents/Dockerfile
+      args:
+        AGENT_MODULE: agents.youtube.youtube_agent
+    env_file:
+      - ./config/.env
+    environment:
+      <<: *agent_network_env
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "8004:8004"
+    depends_on:
+      - backend
+
+  linkedin-agent:
+    build:
+      context: .
+      dockerfile: agents/Dockerfile
+      args:
+        AGENT_MODULE: agents.linkedin.linkedin_agent
+    env_file:
+      - ./config/.env
+    environment:
+      <<: *agent_network_env
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "8005:8005"
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: army
+      POSTGRES_PASSWORD: army
+      POSTGRES_DB: army
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U army"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
