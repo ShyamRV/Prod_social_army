@@ -26,13 +26,13 @@ import asyncio
 import uuid
 import hashlib
 import logging
+from typing import Any, Dict, Optional
 from datetime import datetime
 from uuid import uuid4
 
 import httpx
 from openai import OpenAI
 from uagents import Agent, Context, Protocol
-from uagents.resolver import RulesBasedResolver
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,
@@ -41,13 +41,62 @@ from uagents_core.contrib.protocols.chat import (
     chat_protocol_spec,
 )
 
-from agents.schemas import PipelineTrigger, JobResult
-from agents.routing import submit_url
+try:
+    from agents.schemas import PipelineTrigger, JobResult
+except ImportError:
+    try:
+        from schemas import PipelineTrigger, JobResult
+    except ImportError:
+        from uagents import Model
+
+        class PipelineTrigger(Model):
+            job_id: str
+            user_id: str
+            video_path: str
+            script_text: str
+            yt_access_token: str
+            yt_refresh_token: str = ""
+            li_access_token: str
+            callback_url: str
+            post_to_youtube: bool = True
+            post_to_linkedin: bool = True
+
+        class JobResult(Model):
+            job_id: str
+            user_id: str
+            step: str
+            status: str
+            result_payload: Dict[str, Any] = {}
+            error_message: Optional[str] = None
+
+try:
+    from agents.routing import submit_url, agent_network_kwargs
+except ImportError:
+    try:
+        from routing import submit_url, agent_network_kwargs
+    except ImportError:
+        def submit_url(env_key: str, default_port: int) -> str:
+            raw = (os.environ.get(env_key) or "").strip()
+            if not raw:
+                return f"http://127.0.0.1:{int(default_port)}/submit"
+            raw = raw.rstrip("/")
+            if raw.endswith("/submit"):
+                return raw
+            return raw + "/submit"
+
+        def agent_network_kwargs(use_mailbox: bool, endpoint_url: str, local_rules: dict[str, str]) -> dict[str, Any]:
+            if use_mailbox:
+                return {}
+            from uagents.resolver import RulesBasedResolver
+
+            cleaned = {k: v for k, v in local_rules.items() if k and v}
+            return {"endpoint": endpoint_url, "resolve": RulesBasedResolver(cleaned)}
 
 # ── Config ────────────────────────────────────────────────────────────────────
 ASI1_API_KEY          = os.environ.get("ASI1_API_KEY", "")
 AGENT_SEED            = os.environ.get("GATE_AGENT_SEED", "gate-agent-seed-social-army-v1")
 BACKEND_URL           = os.environ.get("BACKEND_URL", "http://localhost:8000")
+AGENT_SECRET          = os.environ.get("AGENT_SECRET", "dev-secret-123")
 ORCHESTRATOR_ADDRESS  = os.environ.get("ORCHESTRATOR_AGENT_ADDRESS", "agent1q_ORCHESTRATOR")
 AGENT_PORT            = int(os.environ.get("GATE_AGENT_PORT", "8001"))
 DEV_MODE              = os.environ.get("DEV_MODE", "true").lower() == "true"
@@ -62,8 +111,7 @@ LOCAL_RULES = {
     os.environ.get("LINKEDIN_AGENT_ADDRESS", ""): submit_url("LINKEDIN_SUBMIT_URL", int(os.environ.get("LINKEDIN_AGENT_PORT", "8005"))),
     os.environ.get("SIM_AGENT_ADDRESS", ""): submit_url("SIM_SUBMIT_URL", int(os.environ.get("SIM_AGENT_PORT", "8010"))),
 }
-LOCAL_RULES = {k: v for k, v in LOCAL_RULES.items() if k}
-resolver = RulesBasedResolver(LOCAL_RULES)
+NETWORK_KWARGS = agent_network_kwargs(USE_MAILBOX, _my_submit, LOCAL_RULES)
 
 GOOGLE_CLIENT_ID      = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET  = os.environ.get("GOOGLE_CLIENT_SECRET", "")
@@ -91,8 +139,7 @@ agent = Agent(
     mailbox=USE_MAILBOX,
     publish_agent_details=True,
     port=AGENT_PORT,
-    endpoint=_my_submit,
-    resolve=resolver,
+    **NETWORK_KWARGS,
 )
 
 
@@ -242,6 +289,37 @@ def extract_code_from_message(text: str) -> str:
     return ""
 
 
+def extract_connected_user_id(text: str, provider: str) -> str:
+    """
+    Accept backend callback response pasted in chat, e.g.:
+    {"status":"youtube_connected","user_id":"agent1q..."}
+    """
+    t = text.strip().lower()
+    if provider == "youtube" and "youtube_connected" not in t:
+        return ""
+    if provider == "linkedin" and "linkedin_connected" not in t:
+        return ""
+    m = re.search(r'"user_id"\s*:\s*"([^"]+)"', text)
+    if m:
+        return m.group(1).strip()
+    return ""
+
+
+async def fetch_backend_token(user_id: str, provider: str) -> str:
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                f"{BACKEND_URL}/auth/token/{user_id}",
+                params={"provider": provider},
+                headers={"X-Agent-Secret": AGENT_SECRET},
+            )
+            resp.raise_for_status()
+            return (resp.json().get("access_token") or "").strip()
+    except Exception as e:
+        logger.error(f"Failed to fetch {provider} token from backend for {user_id}: {e}")
+        return ""
+
+
 def get_session(ctx: Context, sender: str) -> dict:
     key = f"session:{hashlib.md5(sender.encode()).hexdigest()}"
     raw = ctx.storage.get(key)
@@ -370,6 +448,25 @@ async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
 
     # ── YOUTUBE AUTH ──────────────────────────────────────────────────────────
     if stage == "yt_auth":
+        # If user pasted backend callback success JSON, fetch token from backend.
+        connected_user = extract_connected_user_id(text, "youtube")
+        if connected_user:
+            yt_token = await fetch_backend_token(connected_user, "youtube")
+            if yt_token:
+                session["yt_token"] = yt_token
+                session["yt_refresh"] = ""
+                li_url = make_linkedin_auth_url(state=sender[:40])
+                session["li_auth_url"] = li_url
+                session["stage"] = "li_auth"
+                save_session(ctx, sender, session)
+                await ctx.send(sender, _reply(
+                    "✅ YouTube connected!\n\n"
+                    "**Step 2 of 2 — Connect LinkedIn** 💼\n\n"
+                    f"🔗 {li_url}\n\n"
+                    "Paste the full redirect URL, code, or backend success JSON."
+                ))
+                return
+
         code = extract_code_from_message(text)
         if not code:
             yt_url = session.get("yt_auth_url", make_youtube_auth_url(sender[:40]))
@@ -410,6 +507,26 @@ async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
 
     # ── LINKEDIN AUTH ─────────────────────────────────────────────────────────
     if stage == "li_auth":
+        # If user pasted backend callback success JSON, fetch token from backend.
+        connected_user = extract_connected_user_id(text, "linkedin")
+        if connected_user:
+            li_token = await fetch_backend_token(connected_user, "linkedin")
+            if li_token:
+                session["li_token"] = li_token
+                session["stage"] = "ready"
+                save_session(ctx, sender, session)
+                script_preview = session["script_text"][:300]
+                if len(session["script_text"]) > 300:
+                    script_preview += "..."
+                await ctx.send(sender, _reply(
+                    "✅ LinkedIn connected! Everything is ready.\n\n"
+                    "**Summary:**\n"
+                    f"📹 Video file ID: `{session['video_file_id']}`\n"
+                    f"📝 Script preview: _{script_preview}_\n\n"
+                    "Type **go** to start, or **cancel** to abort."
+                ))
+                return
+
         code = extract_code_from_message(text)
         if not code:
             li_url = session.get("li_auth_url", make_linkedin_auth_url(sender[:40]))
